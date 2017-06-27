@@ -1,6 +1,7 @@
 cd c\folder
 git init
-git clone https://github.com/visaginas/JavaBook
+git clone https://github.com/visaginas/JavaBook      //copy with folder
+git clone https://github.com/visaginas/JavaBook .     //copy without folder. files only
 / git branch - show all branches
 / git status - show status
 / git remote -v - show all remote repositories

@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.Scanner;
 
 /**
@@ -84,9 +85,20 @@ public class Menu {
 		}
 		else System.out.println("Course " + newCourse.title + " already exists");
 	}
-
+/**
+ * to show all courses 
+ * @throws Exception
+ */
 	private void doShowCourses() throws Exception {
 		System.out.println("Perziureti visus kursus.");
+		CourseSQL courseSQL = new CourseSQL();
+		ArrayList<Course> courseList = new ArrayList<Course>();
+		courseList = courseSQL.getCourses();
+		System.out.println("Id\tTitle" );
+		for (Course course: courseList)
+		{
+			System.out.println(course.course_id + "\t" + course.title);
+		}
 	}
 
 	private void doAddStudent() throws Exception {
