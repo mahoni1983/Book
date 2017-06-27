@@ -1,3 +1,5 @@
+import java.math.BigDecimal;
+
 /**
  * for student objects creation
  * @author Eugene

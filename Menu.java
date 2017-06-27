@@ -1,3 +1,4 @@
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Scanner;
 
@@ -57,7 +58,7 @@ public class Menu {
 			doShowCourses();
 			break;
 		case 3:
-			doShowCourses();
+			doAddStudent();
 			break;
 		case 4:
 			doShowStudents();
@@ -100,13 +101,43 @@ public class Menu {
 			System.out.println(course.course_id + "\t" + course.title);
 		}
 	}
-
+	/**
+	 * to add a student to DB
+	 * @throws Exception
+	 */
 	private void doAddStudent() throws Exception {
 		System.out.println("Registruoti nauja studenta.");
+		Student newStudent = new Student();
+		System.out.println("Type student's name");
+		newStudent.name = scanner.nextLine();
+		System.out.println("Type student's email");
+		newStudent.email = scanner.nextLine();
+		StudentSQL studentSQL = new StudentSQL();
+		if (!studentSQL.isEmail(newStudent.email))
+		{	
+			studentSQL.addStudent(newStudent);
+			System.out.println("The new student has been added.");
+		}
+		else System.out.println("There is a student with this email.");
 	}
-
+/**
+ * show student list
+ * @throws Exception
+ */
 	private void doShowStudents() throws Exception {
 		System.out.println("Perziureti studentu sarasa.");
+		StudentSQL studentSQL = new StudentSQL();
+		ArrayList<Student> studentList = new ArrayList<Student>();
+		studentList = studentSQL.getStudents();
+		System.out.println("student_id\tname\temail\tavg_point");
+		float maxAvgPoint = -1;
+		for (Student student: studentList)
+		{
+			System.out.println("" + student.student_id + "\t" + student.name + "\t"
+					+ student.email + "\t" + student.avg_point + "\t");
+			if (student.avg_point > maxAvgPoint) maxAvgPoint = student.avg_point;
+		}
+		System.out.println("The maximum avg point is " + maxAvgPoint);
 	}
 
 	private void doAddPoint() {
