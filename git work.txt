@@ -1,3 +1,5 @@
 cd c\folder
 git init
 git clone https://github.com/visaginas/JavaBook
+git branch - show all branches
+git branch new_branch
