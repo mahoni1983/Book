@@ -1,0 +1,490 @@
+﻿/**
+ * course set as a class 
+ * @author Eugene
+ *
+ */
+public class Course
+{
+	int course_id;
+	String title;
+}
+=====================
+
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+/**
+ * to work with courses from DB
+ * @author Eugene
+ *
+ */
+public class CourseSQL
+{
+    public int addCourse (Course course) throws SQLException
+    {
+    	try 
+		{
+			String query = 
+					"insert into course(title) values(?);";
+			PreparedStatement ps = DBase
+					.getInstance()
+					.getConnection()
+					.prepareStatement(query, 1);
+			ps.setString(1, course.title);
+			ps.executeUpdate();
+			ResultSet rs = ps.getGeneratedKeys();
+			if (rs.next()) course.course_id = rs.getInt(1);
+				return course.course_id;
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+			return -1;
+		}
+    }
+    
+    public boolean isTitle (String title) throws SQLException
+    {
+    	try 
+		{
+			String query = 
+					"select * from course where title = ?;";
+			PreparedStatement ps = DBase
+					.getInstance()
+					.getConnection()
+					.prepareStatement(query);
+			ps.setString(1, title);
+			ps.execute();
+			ResultSet rs = ps.getResultSet();
+			if (rs.next())
+				return true;
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+			System.out.println("CourseSQL isTitle error");
+		}
+        return false;
+    }
+
+    public boolean isCourseID (int course_id) throws SQLException
+    {
+        return false;
+    }
+    /**
+     * to get all courses from DB
+     * @return
+     * @throws SQLException
+     */
+    public ArrayList<Course> getCourses () throws SQLException
+    {
+    	ArrayList<Course> courseList = new ArrayList<Course>();
+    	try 
+		{
+			String query = 
+					"select * from course order by title;";
+			PreparedStatement ps = DBase
+					.getInstance()
+					.getConnection()
+					.prepareStatement(query);
+			ps.execute();
+			ResultSet rs = ps.getResultSet();
+		//	int rowCount = 0;
+	         while(rs.next()) {   // Move the cursor to the next row, return false if no more row
+	            String title = rs.getString("title");
+	            int    course_id   = rs.getInt("course_id");
+	     //       System.out.println("" + course_id + "\t\t" + title);
+	            Course course = new Course();
+	            course.course_id = course_id;
+	            course.title = title;
+	            courseList.add(course);
+	     //       ++rowCount;
+	         }
+	      //   System.out.println("Total number of records = " + rowCount);
+	 
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+			System.out.println("CourseSQL getCourses error");
+		}
+        return courseList;
+    }
+	
+
+}
+========================================================================================================================
+
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+
+/**
+ * Connection to MySQL server
+ * 
+ * @author Eugene
+ * 
+ */
+
+public class DBase {
+	String CONNECTION_STRING = "jdbc:mysql://localhost:3306/BOOK?useSSL=false";
+	String USER = "root";
+	String PASS = "root";
+	private static DBase instance = null;
+	private Connection connection = null;
+
+	public static DBase getInstance() {
+		if (instance == null)
+			instance = new DBase();
+		return instance;
+	}
+
+	private DBase() {
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			connection = DriverManager.getConnection(CONNECTION_STRING, USER,
+					PASS);
+		} catch (Exception e) {
+			e.printStackTrace();
+			connection = null;
+			System.out.println("Connection to SQL server problems:"
+					+ e.getMessage());
+		}
+	}
+
+	public Connection getConnection() {
+		return connection;
+	}
+
+}
+======================================================================================================
+
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Scanner;
+
+/**
+ * menu and user interface.
+ * 
+ * @author Eugene
+ * 
+ */
+public class Menu {
+	Scanner scanner = new Scanner(System.in);
+
+	public void show() {
+		System.out.println();
+		System.out.println("=== MENIU ===");
+		System.out.println("1. Registruoti nauja kursa.");
+		System.out.println("2. Perziureti visus kursus.");
+		System.out.println("3. Registruoti nauja studenta.");
+		System.out.println("4. Perziureti studentu sarasa.");
+		System.out.println("5. Ivesti nauja pazyma.");
+		System.out.println("0. Iseiti");
+	}
+
+	public int getMenuItem() {
+		System.out.println("Please choose an option");
+		// Scanner scanner = new Scanner(System.in);
+		int a = -1;
+		while (true) {
+			try {
+				a = Integer.parseInt(scanner.nextLine());
+				if ((a >= 0) && (a < 6)) {
+					System.out.println("Your choice is: " + a);
+					break;
+				}
+			} catch (Exception e) {
+				a = -1;
+			}
+			System.out.println("Wrong choice, try again");
+		}
+
+	//	scanner.close();
+		return a;
+	}
+
+	public int getItem() {
+		return 0;
+	}
+
+	public void start() throws Exception {
+		show();
+		int menuItem = getMenuItem();
+		switch (menuItem) {
+		case 1:
+			doAddCourse();
+			break;
+		case 2:
+			doShowCourses();
+			break;
+		case 3:
+			doAddStudent();
+			break;
+		case 4:
+			doShowStudents();
+			break;
+		case 5:
+			doAddStudent();
+			break;
+		case 0:
+			break;
+		}
+	}
+
+	private void doAddCourse() throws Exception {
+		System.out.println("Registruoti nauja kursa.");
+		System.out.println("Type in a new course title");
+		Course newCourse = new Course();
+		newCourse.title = scanner.nextLine();
+		CourseSQL courseSQL = new CourseSQL();
+		if (!courseSQL.isTitle(newCourse.title)) {
+			newCourse.course_id = courseSQL.addCourse(newCourse);
+			if (newCourse.course_id != -1)
+				System.out.println("Course " + newCourse.title
+						+ " has been added successfully, the id is: "
+						+ newCourse.course_id);
+		}
+		else System.out.println("Course " + newCourse.title + " already exists");
+	}
+/**
+ * to show all courses 
+ * @throws Exception
+ */
+	private void doShowCourses() throws Exception {
+		System.out.println("Perziureti visus kursus.");
+		CourseSQL courseSQL = new CourseSQL();
+		ArrayList<Course> courseList = new ArrayList<Course>();
+		courseList = courseSQL.getCourses();
+		System.out.println("Id\tTitle" );
+		for (Course course: courseList)
+		{
+			System.out.println(course.course_id + "\t" + course.title);
+		}
+	}
+	/**
+	 * to add a student to DB
+	 * @throws Exception
+	 */
+	private void doAddStudent() throws Exception {
+		System.out.println("Registruoti nauja studenta.");
+		Student newStudent = new Student();
+		System.out.println("Type student's name");
+		newStudent.name = scanner.nextLine();
+		System.out.println("Type student's email");
+		newStudent.email = scanner.nextLine();
+		StudentSQL studentSQL = new StudentSQL();
+		if (!studentSQL.isEmail(newStudent.email))
+		{	
+			studentSQL.addStudent(newStudent);
+			System.out.println("The new student has been added.");
+		}
+		else System.out.println("There is a student with this email.");
+	}
+/**
+ * show student list
+ * @throws Exception
+ */
+	private void doShowStudents() throws Exception {
+		System.out.println("Perziureti studentu sarasa.");
+		StudentSQL studentSQL = new StudentSQL();
+		ArrayList<Student> studentList = new ArrayList<Student>();
+		studentList = studentSQL.getStudents();
+		System.out.println("student_id\tname\temail\tavg_point");
+		float maxAvgPoint = -1;
+		for (Student student: studentList)
+		{
+			System.out.println("" + student.student_id + "\t" + student.name + "\t"
+					+ student.email + "\t" + student.avg_point + "\t");
+			if (student.avg_point > maxAvgPoint) maxAvgPoint = student.avg_point;
+		}
+		System.out.println("The maximum avg point is " + maxAvgPoint);
+	}
+
+	private void doAddPoint() {
+		System.out.println("Ivesti nauja pazyma.");
+	}
+
+	private String getErrorText(String error) {
+		switch (error) {
+		case "course not found":
+			return "Kursas nerastas";
+		case "student not found":
+			return "Studentas nerastas";
+		case "invalid point":
+			return "Pazyma turi buti nuo 1 iki 10";
+		case "ok":
+			return "Pazyma uzregistruota";
+		default:
+			return "Nepazistama klaida";
+		}
+	}
+
+}
+=============================================================================================================
+
+
+import java.sql.SQLException;
+
+public class PointSQL
+{
+    private int addPoint (int course_id, int student_id, int point) throws SQLException
+    {
+        return -1;
+    }
+    
+    public String point (int course_id, int student_id, int point)
+    {
+        return "unknown error";
+    }
+}
+=================================================================================================
+
+
+
+public class Program
+{
+
+    public static void main (String[] args) throws Exception
+    {
+        Menu menu = new Menu ();
+        menu.start ();
+    }
+
+}
+==============================================================================================
+
+
+import java.math.BigDecimal;
+
+/**
+ * for student objects creation
+ * @author Eugene
+ *
+ */
+public class Student
+{
+	int student_id;
+	String name;
+	String email;
+	float avg_point;
+}
+=============================================================================================
+
+
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+/**
+ * to work with students
+ * @author Eugene
+ *
+ */
+public class StudentSQL
+{
+	/**
+	 * add a new student to DB
+	 * @param student
+	 * @return
+	 * @throws SQLException
+	 */
+    public int addStudent (Student student) throws SQLException
+    {
+    	try 
+		{
+			String query = 
+					"insert into student (name, email) values(?, ?);";
+			PreparedStatement ps = DBase
+					.getInstance()
+					.getConnection()
+					.prepareStatement(query, 1);
+			ps.setString(1, student.name);
+			ps.setString(2, student.email);
+			ps.executeUpdate();
+			ResultSet rs = ps.getGeneratedKeys();
+			if (rs.next()) student.student_id = rs.getInt(1);
+				return student.student_id;
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+		}
+        return -1;
+    }
+    
+    public boolean isEmail (String email) throws SQLException
+    {
+    	try 
+		{
+			String query = 
+					"select * from student where email =?;";
+			PreparedStatement ps = DBase
+					.getInstance()
+					.getConnection()
+					.prepareStatement(query);
+			ps.setString(1, email);
+			ps.execute();
+			ResultSet rs = ps.getResultSet();
+			if (rs.next())
+				return true;
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+			System.out.println("CourseSQL isTitle error");
+		}
+        return false;
+    }
+    
+    public boolean isStudentID (int student_id) throws SQLException
+    {
+        return false;
+    }
+    /**
+     * get student list from DB
+     * @return
+     * @throws SQLException
+     */
+    public ArrayList<Student> getStudents() throws SQLException
+    {
+    	ArrayList<Student> studentList = new ArrayList<Student>();
+    	try 
+		{
+			String query = 
+					"select * from student order by name;";
+			PreparedStatement ps = DBase
+					.getInstance()
+					.getConnection()
+					.prepareStatement(query);
+			ps.execute();
+			ResultSet rs = ps.getResultSet();
+		//	int rowCount = 0;
+	         while(rs.next()) {   // Move the cursor to the next row, return false if no more row
+	        	 Student student = new Student ();
+	        	 student.student_id= rs.getInt("student_id");
+	            student.name = rs.getString("name");
+	            student.email = rs.getString("email");
+	            String a =rs.getString("avg_point");
+	    //        System.out.println("a: " + a);
+	            if (a != null)             	
+	            	student.avg_point = Float.parseFloat(a);
+	    //        System.out.println("" + student.student_id + "\t\t" +  student.name);
+
+	            studentList.add(student);
+	     //       ++rowCount;
+	         }
+	      //   System.out.println("Total number of records = " + rowCount);
+	 
+		} catch (SQLException e) {
+			System.out.println(e.getMessage());
+			System.out.println("StudentSQL getStudents error");
+			return null;
+		}
+        return studentList;
+        
+    }
+    
+    public double getAvgPoints (int student_id) throws SQLException
+    {
+        return 0.0;        
+    }
+
+    public void updateAvgPoints (int student_id, double avg) throws SQLException
+    {
+    }
+
+}
