@@ -1,8 +1,10 @@
 import java.util.Scanner;
+
 /**
  * menu and user interface.
+ * 
  * @author Eugene
- *
+ * 
  */
 public class Menu {
 	Scanner scanner = new Scanner(System.in);
@@ -35,7 +37,7 @@ public class Menu {
 			System.out.println("Wrong choice, try again");
 		}
 
-		scanner.close();
+	//	scanner.close();
 		return a;
 	}
 
@@ -46,19 +48,41 @@ public class Menu {
 	public void start() throws Exception {
 		show();
 		int menuItem = getMenuItem();
-		switch (menuItem)
-		{
-			case 1: doAddCourse(); break;		
-			case 2: doShowCourses(); break;
-			case 3: doShowCourses(); break;
-			case 4: doShowStudents(); break;	
-			case 5: doAddStudent(); break;	
-			case 0: break;
-		}	
+		switch (menuItem) {
+		case 1:
+			doAddCourse();
+			break;
+		case 2:
+			doShowCourses();
+			break;
+		case 3:
+			doShowCourses();
+			break;
+		case 4:
+			doShowStudents();
+			break;
+		case 5:
+			doAddStudent();
+			break;
+		case 0:
+			break;
+		}
 	}
 
 	private void doAddCourse() throws Exception {
 		System.out.println("Registruoti nauja kursa.");
+		System.out.println("Type in a new course title");
+		Course newCourse = new Course();
+		newCourse.title = scanner.nextLine();
+		CourseSQL courseSQL = new CourseSQL();
+		if (!courseSQL.isTitle(newCourse.title)) {
+			newCourse.course_id = courseSQL.addCourse(newCourse);
+			if (newCourse.course_id != -1)
+				System.out.println("Course " + newCourse.title
+						+ " has been added successfully, the id is: "
+						+ newCourse.course_id);
+		}
+		else System.out.println("Course " + newCourse.title + " already exists");
 	}
 
 	private void doShowCourses() throws Exception {
