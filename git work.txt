@@ -1,5 +1,11 @@
 cd c\folder
 git init
 git clone https://github.com/visaginas/JavaBook
-git branch - show all branches
+/ git branch - show all branches
+/ git status - show status
+/ git remote -v - show all remote repositories
+/ git remote add <make_new_repos_short_name> <https://github.com/user/repo.git>
 git branch new_branch
+git add .
+git commit .
+git push .
