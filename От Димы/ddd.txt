@@ -1,0 +1,39 @@
+use book;
+
+
+2.1
+INSERT INTO course (title) VALUES ('Java');
+
+INSERT INTO course (title) VALUES ('MySQL');
+
+
+
+2.2
+SELECT title FROM course;
+
+2.3
+SELECT title FROM course ORDER BY title;
+
+2.4
+INSERT INTO student (name, email) VALUES ('dmitrij', 'dimon@dimon.lt');
+
+2.5
+SELECT name FROM student WHERE email = 'dimon@dimon.lt';
+
+2.6
+SELECT name FROM student ORDER BY name;
+
+2.7
+SELECT name FROM student WHERE student_id = 2;
+
+2.8
+SELECT title FROM course WHERE course_id = 3;
+
+2.9
+INSERT INTO point (course_id, student_id, point, point_date) VALUES (1 , 1, 10, NOW());
+
+2.10
+SELECT name, AVG (point) FROM student JOIN point using (student_id) WHERE student_id = 3;
+
+2.11
+UPDATE student SET avg_point = (SELECT AVG (point) FROM point WHERE student_id = 3) WHERE student_id = 3;

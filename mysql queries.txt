@@ -18,3 +18,5 @@ insert into point(course_id, student_id, point, point_date) values(4, 5, 10, now
 select student_id, avg(point) from point group by student_id having student_id = 1;
 
 update student inner join (select student_id, avg(point) as avg_point2 from point group by student_id having student_id = 1) as q using(student_id) set student.avg_point =q.avg_point2 where student_id=1;
+from Vova:
+UPDATE student SET avg_point = (SELECT AVG (point) FROM point WHERE student_id = 3) WHERE student_id = 3;
